@@ -1,0 +1,33 @@
+####Training phase analysis###
+
+##Import and summerize data##
+setwd("C:/Users/show0018/OneDrive - Monash University/R_Studio/Solitaire_Illusion")
+train_data <- read.csv("Solitaire_priming_and_training_data.csv")
+train_data
+train_data$ID<-factor(train_data$ID)
+summary (train_data)
+
+##Install packages and libraries##
+library (lme4)
+library (MASS)
+install.packages("MuMIn")
+library(MuMIn)
+
+##Analyse training phase data for bees##
+bees_train_data <- subset(train_data, Bee_wasp == 1) #subset data for bees only
+summary(bees_train_data)
+bees_train_data_model <- glmer(Choice ~ Trial + (1|ID), data = bees_train_data, family = binomial)
+summary (bees_train_data_model)
+
+##Analyse training phase data for wasps##
+wasps_train_data <- subset(train_data, Bee_wasp == 2) #subset data for wasps only
+summary(wasps_train_data)
+wasps_train_data_model <- glmer(Choice ~ Trial + (1|ID), data = wasps_train_data, family = binomial)
+summary (wasps_train_data_model)
+
+##comparare training data for bees and wasps##
+comp_train_data_model <- glmer(Choice ~ Trial * Bee_wasp_text + (1|ID), data = train_data, family = binomial)
+summary (comp_train_data_model)
+
+comp_train_data_model2 <- glmer(Choice ~ Trial + Bee_wasp_text + (1|ID), data = train_data, family = binomial) #remove interaction
+summary (comp_train_data_model2)
