@@ -1,0 +1,102 @@
+###Import and name data file###
+setwd("C:/Users/show0018/OneDrive - Monash University/R_Studio/Solitaire_Illusion")
+all_data <- read.csv("Solitaire_test_data.csv")
+all_data
+all_data$ID<-factor(all_data$ID)
+summary (all_data)
+library (lme4)
+library (MASS)
+
+####Analyses of tests for bees####
+Tests_bee <- subset(all_data, Bee_wasp == 1)
+##Learning test 1 - 1 vs 32
+LT_1_BEE <- subset(Tests_bee, Test_type==1)
+summary(LT_1_BEE)
+LT_1_BEE_model <- glmer(Choice ~ 1 + (1|ID), data = LT_1_BEE,family=binomial)
+summary (LT_1_BEE_model)
+
+##Learning test 2 - 3 vs 6
+LT_2_BEE <- subset(Tests_bee, Test_type==2)
+summary(LT_2_BEE)
+LT_2_BEE_model <- glmer(Choice ~ 1 + (1|ID), data = LT_2_BEE,family=binomial)
+summary (LT_2_BEE_model)
+
+##Learning test 3 - 27 vs 30
+LT_3_BEE <- subset(Tests_bee, Test_type==3)
+summary(LT_3_BEE)
+LT_3_BEE_model <- glmer(Choice ~ 1 + (1|ID), data = LT_3_BEE,family=binomial)
+summary (LT_3_BEE_model)
+
+##Illusion test - 16 vs 16
+Illusion_test_BEE <- subset(Tests_bee, Test_type==4)
+summary(Illusion_test_BEE)
+Illusion_test_BEE_model <- glmer(Choice ~ 1 + (1|ID), data = Illusion_test_BEE,family=binomial)
+summary (Illusion_test_BEE_model)
+
+##test_comparison
+summary(Tests_bee)
+Test_comparison_bee <- glmer(Choice ~ Test_type_text + (1|ID), data = Tests_bee,family=binomial)
+summary (Test_comparison_bee)
+
+####Analyses of tests for wasps####
+Tests_wasp <- subset(all_data, Bee_wasp == 2)
+
+##Learning test 1 - 1 vs 32
+LT_1_wasp <- subset(Tests_wasp, Test_type==1)
+summary(LT_1_wasp)
+LT_1_wasp_model <- glmer(Choice ~ 1 + (1|ID), data = LT_1_wasp,family=binomial)
+summary (LT_1_wasp_model)
+
+##Learning test 2 - 3 vs 6
+LT_2_wasp <- subset(Tests_wasp, Test_type==2)
+summary(LT_2_wasp)
+LT_2_wasp_model <- glmer(Choice ~ 1 + (1|ID), data = LT_2_wasp,family=binomial)
+summary (LT_2_wasp_model)
+
+##Learning 3 - 27 vs 30
+LT_3_wasp <- subset(Tests_wasp, Test_type==3)
+summary(LT_3_wasp)
+LT_3_wasp_model <- glmer(Choice ~ 1 + (1|ID), data = LT_3_wasp,family=binomial)
+summary (LT_3_wasp_model)
+
+##Illusion test - 16 vs 16
+Illusion_test_wasp <- subset(Tests_wasp, Test_type==4)
+summary(Illusion_test_wasp)
+Illusion_test_wasp_model <- glmer(Choice ~ 1 + (1|ID), data = Illusion_test_wasp,family=binomial)
+summary (Illusion_test_wasp_model)
+
+##test_comparison
+summary(Tests_wasp)
+Test_comparison_wasp <- glmer(Choice ~ Test_type_text + (1|ID), data = Tests_wasp,family=binomial)
+summary (Test_comparison_wasp)
+
+
+####Comaprison of tests between wasps and bees####
+
+##Learning test 1 - 1 vs 32
+LT_1_COMP <- subset(all_data, Test_type==1)
+summary(LT_1_COMP)
+LT_1_COMP_model <- glmer(Choice ~ Bee_wasp_text + (1|ID), data = LT_1_COMP,family=binomial)
+summary (LT_1_COMP_model)
+
+##Learning test 2 - 3 vs 6
+LT_2_COMP <- subset(all_data, Test_type==2)
+summary(LT_2_COMP)
+LT_2_COMP_model <- glmer(Choice ~ Bee_wasp_text + (1|ID), data = LT_2_COMP,family=binomial)
+summary (LT_2_COMP_model)
+
+##Learning test 3 - 27 v 30
+LT_3_COMP <- subset(all_data, Test_type==3)
+summary(LT_3_COMP)
+LT_3_COMP_model <- glmer(Choice ~ Bee_wasp_text + (1|ID), data = LT_3_COMP,family=binomial)
+summary (LT_3_COMP_model)
+
+##Illusion test
+Illusion_COMP <- subset(all_data, Test_type==4)
+summary(Illusion_COMP)
+Illusion_COMP_model <- glmer(Choice ~ Bee_wasp_text + (1|ID), data = Illusion_COMP,family=binomial)
+summary (Illusion_COMP_model)
+
+##Compare all tests:
+ALL_COMP_model <- glmer(Choice ~ Bee_wasp_text + Test_type_text + (1|ID), data = all_data,family=binomial)
+summary (ALL_COMP_model)
