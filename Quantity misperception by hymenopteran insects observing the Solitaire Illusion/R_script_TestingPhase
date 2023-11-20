@@ -1,5 +1,5 @@
 ###Import and name data file###
-setwd("C:/Users/show0018/OneDrive - Monash University/R_Studio/Solitaire_Illusion")
+setwd("C:/.../R_Studio/Solitaire_Illusion")
 all_data <- read.csv("Solitaire_test_data.csv")
 all_data
 all_data$ID<-factor(all_data$ID)
