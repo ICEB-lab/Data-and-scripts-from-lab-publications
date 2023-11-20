@@ -1,7 +1,7 @@
 ####Training phase analysis###
 
 ##Import and summerize data##
-setwd("C:/Users/show0018/OneDrive - Monash University/R_Studio/Solitaire_Illusion")
+setwd("C:/.../R_Studio/Solitaire_Illusion")
 train_data <- read.csv("Solitaire_priming_and_training_data.csv")
 train_data
 train_data$ID<-factor(train_data$ID)
