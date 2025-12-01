@@ -1,0 +1,341 @@
+---
+title: "Preliminary flower preference data analysis"
+author: "Yuqing"
+date: "2024-01-31"
+output:
+  html_document:
+   toc: yes
+   toc_float: yes
+   collapsed: true 
+   smooth_scroll: true
+   depth: 2 
+   highlight: tango # different theme for the appearance of the code
+   theme: flatly
+   code_folding: none
+self_contained: yes
+mode: selfcontained
+editor_options:
+  chunk_output_type: console
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../Output") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# **Install required packages**
+
+```{r eval=FALSE}
+install.packages("lme4") # linear mixed effect models
+install.packages("ggplot2") # plot graphs
+install.packages("tidyverse") # QOL features
+install.packages("wesanderson") # color palette 
+install.packages("dplyr")  # data manipulation
+install.packages("DHARMa") # For assumption checking 
+install.packages("readxl")
+```
+
+# **Load packages**
+
+```{r, message=FALSE, warning=FALSE}
+library(lme4) # linear mixed effect models
+library(ggplot2) # plot graphs
+library(tidyverse) # QOL features
+library(wesanderson) # color palette
+library(dplyr)  # data manipulation
+library(DHARMa) # For assumption checking
+library(readxl)
+```
+
+# **Data importing**
+
+```{r, message=FALSE, results="hide"}
+
+test <- read_excel("../Data/beedataYQ.xlsx")
+summary(test) #view summary
+str(test) #display structure
+View(test) # see above text
+
+# Data wrangling ------------------------------------------------------------------------
+
+test$BEEID <- as.factor(test$BEEID)
+# treat as a categorical factor
+test$PREFERENCE <- as.factor(test$PREFERENCE)
+summary(test)
+
+bvytest <- subset(test, PREFERENCE == "BVY")
+mean(bvytest$CHOICE)
+str(bvytest)
+
+bvybstest <- subset(test, PREFERENCE == "BVYBS")
+mean(bvybstest$CHOICE)
+
+bvbystest <- subset(test, PREFERENCE == "BVBYS")
+mean(bvbystest$CHOICE)
+
+bvbitest <- subset(test, PREFERENCE == "BVBI")
+mean(bvbitest$CHOICE)
+
+yvybstest <- subset(test, PREFERENCE == "YVYBS")
+mean(yvybstest$CHOICE)
+
+yvbystest <- subset(test, PREFERENCE == "YVBYS")
+mean(yvbystest$CHOICE)
+
+yvbitest <- subset(test, PREFERENCE == "YVBI")
+mean(yvbitest$CHOICE)
+
+ybsvbystest <- subset(test, PREFERENCE == "YBSVBYS")
+mean(ybsvbystest$CHOICE)
+
+ybsvbitest <- subset(test, PREFERENCE == "YBSVBI")
+mean(ybsvbitest$CHOICE)
+
+bysvbitest <- subset(test, PREFERENCE == "BYSVBI")
+mean(bysvbitest$CHOICE)
+
+```
+
+## TEST DATA
+
+```{r}
+bvylm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvytest)
+summary(bvylm)
+
+bvybslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvybstest)
+summary(bvybslm)
+
+bvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvbystest)
+summary(bvbyslm)
+
+bvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvbitest)
+summary(bvbilm)
+
+yvybslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvybstest)
+summary(yvybslm)
+
+yvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvbystest)
+summary(yvbyslm)
+
+yvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvbitest)
+summary(yvbilm)
+
+ybsvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = ybsvbystest)
+summary(ybsvbyslm)
+
+ybsvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = ybsvbitest)
+summary(ybsvbilm)
+
+bysvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bysvbitest)
+summary(bysvbilm)
+
+```
+
+##Overdispersion checking
+```{r}
+
+rbvy <- residuals (bvylm)
+lbvy <- length(fixef(bvylm))
+OV <- sum(rbvy^2)/(nrow(bvytest)-lbvy)
+OV
+
+simulated_resbvy<- simulateResiduals(fittedModel=bvylm)
+par(mar = c(1, 1, 1, 1))
+plot(1:30)
+plot(simulated_resbvy)
+
+rbvybs <- residuals (bvybslm)
+lbvybs <- length(fixef(bvybslm))
+OV <- sum(rbvybs^2)/(nrow(bvybstest)-lbvybs)
+OV
+
+simulated_resbvybs<- simulateResiduals(fittedModel=bvybslm)
+plot(simulated_resbvybs)
+
+rbvbys <- residuals (bvbyslm)
+lbvbys <- length(fixef(bvbyslm))
+OV <- sum(rbvbys^2)/(nrow(bvbystest)-lbvbys)
+OV
+
+simulated_resbvbys<- simulateResiduals(fittedModel=bvbyslm)
+plot(simulated_resbvbys)
+
+rbvbi <- residuals (bvbilm)
+lbvbi <- length(fixef(bvbilm))
+OV <- sum(rbvbi^2)/(nrow(bvbitest)-lbvbi)
+OV
+
+simulated_resbvbi<- simulateResiduals(fittedModel=bvbilm)
+plot(simulated_resbvbi)
+
+ryvybs <- residuals (yvybslm)
+lyvybs <- length(fixef(yvybslm))
+OV <- sum(ryvybs^2)/(nrow(yvybstest)-lyvybs)
+OV
+
+simulated_resyvybs<- simulateResiduals(fittedModel=yvybslm)
+plot(simulated_resyvybs)
+
+ryvbys <- residuals (yvbyslm)
+lyvbys <- length(fixef(yvbyslm))
+OV <- sum(ryvbys^2)/(nrow(yvbystest)-lyvbys)
+OV
+
+simulated_resyvbys<- simulateResiduals(fittedModel=yvbyslm)
+plot(simulated_resyvbys)
+
+ryvbi <- residuals (yvbilm)
+lyvbi <- length(fixef(yvbilm))
+OV <- sum(ryvbi^2)/(nrow(yvbitest)-lyvbi)
+OV
+
+simulated_resyvbi<- simulateResiduals(fittedModel=yvbilm)
+plot(simulated_resyvbi)
+
+rybsvbys <- residuals (ybsvbyslm)
+lybsvbys <- length(fixef(ybsvbyslm))
+OV <- sum(rybsvbys^2)/(nrow(ybsvbystest)-lybsvbys)
+OV
+
+simulated_resybsvbys<- simulateResiduals(fittedModel=ybsvbyslm)
+plot(simulated_resybsvbys)
+
+rybsvbi <- residuals (ybsvbilm)
+lybsvbi <- length(fixef(ybsvbilm))
+OV <- sum(rybsvbi^2)/(nrow(ybsvbitest)-lybsvbi)
+OV
+
+simulated_resybsvbi<- simulateResiduals(fittedModel=ybsvbilm)
+plot(simulated_resybsvbi)
+
+rbysvbi <- residuals (bysvbilm)
+lbysvbi <- length(fixef(bysvbilm))
+OV <- sum(rbysvbi^2)/(nrow(bysvbitest)-lbysvbi)
+OV
+
+simulated_resbysvbi<- simulateResiduals(fittedModel=bysvbilm)
+plot(simulated_resbysvbi)
+
+```
+
+
+```{r error=FALSE, message=FALSE}
+
+confint(bvylm) #confidence interval
+bvyconfintlow <- (exp(0.1912439)/(1 + exp(0.1912439))) #reverse link function
+bvyconfinthigh <- (exp(0.9198756)/(1 + exp(0.9198756)))
+
+confint(bvybslm)
+bvybsconfintlow <- (exp(-0.215692)/(1 + exp(-0.215692))) 
+bvybsconfinthigh <- (exp(0.4210368)/(1 + exp(0.4210368)))
+
+confint(bvbyslm)
+bvbysconfintlow <- (exp(-0.5015526)/(1 + exp(-0.5015526))) 
+bvbysconfinthigh <- (exp(0.05702269)/(1 + exp(0.05702269)))
+
+confint(bvbilm)
+bvbiconfintlow <- (exp(-0.1189907)/(1 + exp(-0.1189907))) 
+bvbiconfinthigh <- (exp(0.4431936)/(1 + exp(0.4431936)))
+
+confint(yvybslm)
+yvybsconfintlow <- (exp(-0.698549)/(1 + exp(-0.698549))) 
+yvybsconfinthigh <- (exp(-0.1226703)/(1 + exp(-0.1226703)))
+
+confint(yvbyslm)
+yvbysconfintlow <- (exp(-0.7074014)/(1 + exp(-0.7074014))) 
+yvbysconfinthigh <- (exp(0.02879764)/(1 + exp(0.02879764)))
+
+confint(yvbilm)
+yvbiconfintlow <- (exp(-0.4875532)/(1 + exp(-0.4875532))) 
+yvbiconfinthigh <- (exp(0.3966031)/(1 + exp(0.3966031)))
+
+confint(ybsvbyslm)
+ybsvbysconfintlow <- (exp(-0.6351047 )/(1 + exp(-0.6351047))) 
+ybsvbysconfinthigh <- (exp(0.2751612)/(1 + exp(0.2751612)))
+
+confint(ybsvbilm)
+ybsvbiconfintlow <- (exp(-0.4631977)/(1 + exp(-0.4631977))) 
+ybsvbiconfinthigh <- (exp(0.09847162)/(1 + exp(0.09847162)))
+
+confint(bysvbilm)
+bysvbiconfintlow <- (exp(-0.2980767)/(1 + exp(-0.2980767))) 
+bysvbiconfinthigh <- (exp(0.4239040)/(1 + exp(0.4239040)))
+
+```
+
+
+## Figures
+
+# Bargraph
+```{r}
+dframe1 <- data.frame(PREFERENCE = rep(c("BVY", "BVYBS", "BVBYS", "BVBI", "YVYBS")), # Create dataframe
+                legend = c("BVY", "BVYBS", "BVBYS", "BVBI", "YVYBS"), 
+                proportion = c(0.63, 0.525, 0.445, 0.54, 0.4),
+                confintlow = c(bvyconfintlow, bvybsconfintlow, bvbysconfintlow, bvbiconfintlow, yvybsconfintlow),
+                confinthigh = c(bvyconfinthigh, bvybsconfinthigh, bvbysconfinthigh, bvbiconfinthigh, yvybsconfinthigh))
+
+dframe2 <- data.frame(PREFERENCE = rep(c("YVBYS", "YVBI", "YBSVBYS", "YBSVBI", "BYSVBI")), # Create dataframe
+                legend = c("YVBYS", "YVBI", "YBSVBYS", "YBSVBI", "BYSVBI"), 
+                proportion = c(0.42, 0.49, 0.46, 0.455, 0.515),
+                confintlow = c(yvbysconfintlow, yvbiconfintlow, ybsvbysconfintlow, ybsvbiconfintlow, bysvbiconfintlow),
+                confinthigh = c(yvbysconfinthigh, yvbiconfinthigh, ybsvbysconfinthigh, ybsvbiconfinthigh, bysvbiconfinthigh))
+
+
+testsub1 <- subset(test, PREFERENCE == "BVY" | PREFERENCE == "BVYBS" | PREFERENCE == "BVBYS" | PREFERENCE == "BVBI" | PREFERENCE =="YVYBS")
+
+testsub2 <- subset(test, PREFERENCE == "YVBYS" | PREFERENCE == "YVBI" | PREFERENCE == "YBSVBYS" | PREFERENCE == "YBSVBI" | PREFERENCE =="BYSVBI")
+
+
+meanpoints1 <- testsub1 %>%  # Calculate mean of each block for each bee
+group_by(BEEID, PREFERENCE)  %>% 
+summarize(prop = mean(CHOICE)) 
+
+meanpoints2 <- testsub2 %>%  # Calculate mean of each block for each bee
+group_by(BEEID, PREFERENCE)  %>% 
+summarize(prop = mean(CHOICE)) 
+
+
+```
+
+#Generate the Figures
+```{r}
+testgraph1 <- ggplot(dframe1, aes(x = PREFERENCE, y = proportion, fill = PREFERENCE)) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey") +
+  labs(x = "Preference Test", y = "Flower Pattern choices (%)", fill = "PREFERENCE") +
+  geom_bar(stat = "identity", position = "dodge", width = .7) + 
+  geom_point(data = meanpoints1, aes(x = PREFERENCE, y = prop), position = position_jitter(width = 0.1), size = 2, colour = "dark grey") +
+  scale_fill_manual(values = wes_palette("Zissou1", n = 5)) +
+  geom_errorbar(aes(ymin = confintlow, ymax = confinthigh), width = .2) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = NULL), limits = c(0,1)) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        aspect.ratio = 1/1,
+        legend.position = "none",
+        text = element_text(size = 12, family = "Times New Roman")) +
+  scale_x_discrete(limits = c("BVY", "BVYBS", "BVBYS", "BVBI", "YVYBS"))
+        
+testgraph1
+
+
+testgraph2 <- ggplot(dframe2, aes(x = PREFERENCE, y = proportion, fill = PREFERENCE)) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey") +
+  labs(x = "Preference Test", y = "Flower Pattern choices (%)", fill = "PREFERENCE") +
+  geom_bar(stat = "identity", position = "dodge", width = .7) + 
+  geom_point(data = meanpoints2, aes(x = PREFERENCE, y = prop), position = position_jitter(width = 0.1), size = 2, colour = "dark grey") +
+  scale_fill_manual(values = wes_palette("Moonrise3", n = 5)) +
+  geom_errorbar(aes(ymin = confintlow, ymax = confinthigh), width = .2) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = NULL), limits = c(0,1)) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        aspect.ratio = 1/1,
+        legend.position = "none",
+        text = element_text(size = 12, family = "Times New Roman")) +
+  scale_x_discrete(limits = c("YVBYS", "YVBI", "YBSVBYS", "YBSVBI", "BYSVBI"))
+        
+print(testgraph2)
+
+
+```
+
