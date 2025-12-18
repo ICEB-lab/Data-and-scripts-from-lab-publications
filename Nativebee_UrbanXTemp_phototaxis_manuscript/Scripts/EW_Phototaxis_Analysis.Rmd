@@ -1,0 +1,360 @@
+---
+title: "Honeybee and nativebee phototaxis analysis"
+date: "2025-05-18"
+output:
+  html_document:
+   toc: yes
+   toc_float: yes
+   collapsed: true 
+   smooth_scroll: true
+   depth: 2 
+   highlight: tango # different theme for the appearance of the code
+   theme: flatly
+   code_folding: none
+self_contained: yes
+mode: selfcontained
+editor_options:
+  chunk_output_type: console
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#**Install Packages**
+```{r eval=FALSE}
+install.packages("lme4") # linear mixed effect models
+install.packages("ggplot2") # plot graphs
+install.packages("tidyverse") # QOL features
+install.packages("wesanderson") # color palette
+install.packages("dplyr")  # data manipulation
+install.packages("BFpack") # Bayes Factor for logistic regression
+install.packages("ggThemeAssist") # Add-in to customize ggplot2 themes
+install.packages("performance") # For assumption checking
+install.packages("DHARMa") # For assumption checking
+install.packages("patchwork")
+install.packages("lmerTest")
+install.packages("emmeans")
+```
+
+# **Load Packages**
+```{r, message=FALSE, warning=FALSE}
+library(lme4) # linear mixed effect models
+library(ggplot2) # plot graphs
+library(tidyverse) # QOL features
+library(wesanderson) # color palette
+library(dplyr)  # data manipulation
+library(BFpack) # Bayes Factor for logistic regression
+library(ggThemeAssist) # you may need to restart you session for this add-in to appear
+library(performance) # For assumption checking
+library(DHARMa) # For assumption checking
+library(tidyr)
+library(patchwork)
+library(lmerTest)
+library(readr)
+library(emmeans)
+```
+
+# **Load Data**
+```{r message=FALSE, warning=FALSE, results=FALSE}
+beesNA <- read.csv("../Data/bees_wNA.csv", header = TRUE)
+view(beesNA)
+summary(beesNA) #view summary
+str(beesNA) #display structure
+```
+# **Wrangle Data**
+```{r message=FALSE, warning=FALSE, results=FALSE}
+beesNA$individual <- as.factor(beesNA$individual)
+beesNA$type <- as.factor(beesNA$type)
+beesNA$species <- as.factor(beesNA$species)
+beesNA$urban_gradient <- as.factor(beesNA$urban_gradient)
+beesNA$temperature <- as.factor(beesNA$temperature)
+beesNA$light <- as.factor(beesNA$light)
+beesNA$condition <- as.factor(beesNA$condition)
+beesNA$condition2 <- as.factor(beesNA$condition2)
+beesNA$condition_sequence <- as.factor(beesNA$condition_sequence)
+str(beesNA)
+summary(beesNA)
+
+honeybees_df <- beesNA %>%
+  filter(type == "Honeybees")
+summary(honeybees_df)
+
+native_df <- beesNA %>%
+  filter(type == "Native")
+summary(native_df)
+```
+# **Check Levels**
+```{r message=FALSE, warning=FALSE, results=FALSE}
+levels(beesNA$type)
+levels(beesNA$urban_gradient)
+levels(beesNA$temperature)
+levels(beesNA$species)
+levels(beesNA$light)
+levels(beesNA$condition)
+levels(beesNA$condition2)
+```
+# **Visualise Shape**
+```{r message=FALSE, warning=FALSE}
+ggplot(data = beesNA, aes(x = condition, y = duration_from_start, colour = type)) +
+  geom_boxplot() +
+  labs(x = "Light", y = "Time to Complete (s)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 11))    
+```
+# **Modelling**
+```{r message=FALSE, warning=FALSE}
+
+beesNA_m1 <- lmer(duration_from_start~ urban_gradient*temperature*light + type*temperature + type*light + type +   (1|individual), data = beesNA)
+summary(beesNA_m1)
+AIC(beesNA_m1)
+
+```
+
+# **Check Assumptions**
+```{r message=FALSE, warning=FALSE}
+acf(residuals(beesNA_m1)) # check for independence of residuals - there should be no increasing or decreasing pattern and should look noisy
+
+qqnorm(residuals(beesNA_m1))
+qqline(residuals(beesNA_m1))  # Normality of residuals
+
+
+plot(fitted(beesNA_m1), residuals(beesNA_m1))   # Homoscedasticity assumption, there should be no fanning pattern
+
+simulated_residuals <- simulateResiduals(fittedModel = beesNA_m1) # additional test from DHARMA
+plot(simulated_residuals)
+```
+
+# **Transform Data**
+```{r message=FALSE, warning=FALSE}
+beesNA$transformed_duration <- log(beesNA$duration_from_start)
+
+# Full model
+beesNA_m3 <- lmer(transformed_duration~ urban_gradient*temperature*light + type*temperature + type*light + (1|individual), data = beesNA)
+AIC(beesNA_m3)
+summary(beesNA_m3)
+
+# Simplify further
+beesNA_m4 <- lmer(transformed_duration~ light + urban_gradient*temperature + type*temperature + (1|individual), data = beesNA)
+AIC(beesNA_m4)
+summary(beesNA_m4)
+
+# Posthoc analysis
+
+emm_all <- emmeans(beesNA_m4, ~ type * temperature * urban_gradient * light,
+                   at = list(
+                     type = levels(beesNA$type),
+                     temperature = levels(beesNA$temperature),
+                     urban_gradient = levels(beesNA$urban_gradient),
+                     light = levels(beesNA$light)
+                   ))
+emm_interaction <- emmeans(beesNA_m4, ~ type * temperature)
+
+
+pairs(emm_interaction, by = "type")
+emm_df <- as.data.frame(emm_interaction)
+
+```
+
+# **Check Assumptions**
+```{r message=FALSE, warning=FALSE}
+acf(residuals(beesNA_m4)) # check for independence of residuals - there should be no increasing or decreasing pattern and should look noisy
+
+qqnorm(residuals(beesNA_m4))
+qqline(residuals(beesNA_m4))  # Normality of residuals
+
+
+plot(fitted(beesNA_m4), residuals(beesNA_m4))   # Homoscedasticity assumption, there should be no fanning pattern
+
+simulated_residuals <- simulateResiduals(fittedModel = beesNA_m4) # additional test from DHARMA
+plot(simulated_residuals)
+```
+
+# **Visualise by Group**
+```{r message=FALSE, warning=FALSE}
+
+model_bees <- as.data.frame(emm_all)
+model_bees$emmean_raw <- exp(model_bees$emmean)     
+model_bees$lower.CL_raw <- exp(model_bees$lower.CL)
+model_bees$upper.CL_raw <- exp(model_bees$upper.CL)
+
+model_bees <- model_bees %>%
+  mutate(condition2 = paste(temperature, light, urban_gradient, sep = " / "))
+
+model_bees <- model_bees %>%
+  left_join(
+    beesNA %>%
+      group_by(type, temperature) %>%
+      summarise(raw_mean = mean(duration_from_start, na.rm = TRUE)),
+    by = c("type", "temperature")
+  )
+
+
+types <- unique(model_bees$type)
+
+
+top <- ggplot() +
+  geom_col(
+    data = model_bees %>% filter(type == types[1]),
+    aes(x = condition2, y = emmean_raw, fill = type),
+    position = position_dodge(0.9), width = 0.9
+  ) +
+  geom_jitter(
+    data = beesNA %>% filter(type == types[1]),
+    aes(x = condition2, y = duration_from_start),
+    position = position_jitter(width = 0.1),
+    size = 0.7, colour = "grey50", show.legend = FALSE
+  ) +
+  geom_errorbar(
+    data = model_bees %>% filter(type == types[1]),
+    aes(x = condition2, ymin = lower.CL_raw, ymax = upper.CL_raw),
+    position = position_dodge(0.9), width = 0.15, colour = "black"
+  ) +
+  scale_fill_manual(values = c("Honeybees" = "#D9A94D", "Native" = "#A1B5D8")) +
+  labs(y = "Duration (seconds)") +
+  scale_y_continuous(
+    sec.axis = dup_axis(name = types[1])   # Right-hand taxa label
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.y.right = element_blank(),   # hide right ticks
+    axis.ticks.y.right = element_blank(),
+    panel.grid = element_blank(),
+    axis.line = element_line(color = "black"),
+    legend.position = "none"
+  )
+
+bottom <- ggplot() +
+  geom_col(
+    data = model_bees %>% filter(type == types[2]),
+    aes(x = condition2, y = emmean_raw, fill = type),
+    position = position_dodge(0.9), width = 0.9
+  ) +
+  geom_jitter(
+    data = beesNA %>% filter(type == types[2]),
+    aes(x = condition2, y = duration_from_start),
+    position = position_jitter(width = 0.1),
+    size = 0.7, colour = "grey50", show.legend = FALSE
+  ) +
+  geom_errorbar(
+    data = model_bees %>% filter(type == types[2]),
+    aes(x = condition2, ymin = lower.CL_raw, ymax = upper.CL_raw),
+    position = position_dodge(0.9), width = 0.15, colour = "black"
+  ) +
+  scale_fill_manual(values = c("Honeybees" = "#D9A94D", "Native" = "#A1B5D8")) +
+  labs(x = "Condition", y = "Duration (seconds)") +
+  scale_y_continuous(
+    sec.axis = dup_axis(name = types[2])   # Right-hand taxa label
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y.right = element_blank(),   
+    axis.ticks.y.right = element_blank(),
+    panel.grid = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 15)),
+    axis.line = element_line(color = "black"),
+    legend.position = "none"
+  )
+
+fig3 <- top / bottom +
+  plot_annotation(tag_levels = "A") &
+  theme(
+    plot.tag = element_text(size = 14, face = "bold"),
+    plot.tag.position = c(0.02, 0.95)
+  )
+
+print(fig3)
+
+ggsave(fig3, width = 5, height = 9, dpi = 300, filename = "../Output/fig3.png")
+ggsave(fig3, width = 5, height = 9, dpi = 300, filename = "../Output/fig3.pdf")
+
+```
+
+# ** Interaction effect graph**
+```{r message=FALSE, warning=FALSE}
+ggplot(beesNA, aes(x = temperature, y = transformed_duration, color = type, group = type)) +
+  geom_smooth(method = "lm", se = TRUE, aes(color = type)) +  # Add regression lines with confidence intervals
+  labs(title = "Interaction between Temperature and Bee Type",
+       x = "Temperature (32 vs. 28)",
+       y = "Response Variable",
+       color = "Bee Type") +
+  theme_minimal()
+```
+
+
+# **Means**
+```{r message=FALSE, warning=FALSE}
+
+mean_duration <- beesNA %>%
+  group_by(type, temperature) %>%
+  summarise(mean = mean(duration_from_start, na.rm = TRUE))
+print(mean_duration)
+
+mean_logduration <- beesNA %>%
+  group_by(type, temperature) %>%
+  summarise(mean = mean(transformed_duration, na.rm = TRUE))
+print(mean_logduration)
+```
+
+
+# ** Supplementary analysis - removing Exoneura and Leioproctus / removing failed bees
+```{r message=FALSE, warning=FALSE}
+
+#Recategorise genus
+beesNA <- beesNA %>%
+  mutate(
+    genus = case_when(
+      species == "Apis mellifera" ~ "Apis",
+      species == "Lasioglossum (Chilalictus)" ~ "Lasioglossum",
+      species == "Lasioglossum (Parasphecodes)" ~ "Lasioglossum",
+      species == "Lasioglossum (Homalictus)" ~ "Lasioglossum",
+      species == "Lasioglossum" ~ "Lasioglossum",
+      species == "Exoneura" ~ "Exoneura",
+      species == "Leioproctus" ~ "Leioproctus",
+      species == "Native" ~ "Native (Unknown genus)",
+      TRUE ~ NA_character_  # Fill with NA for any other species
+    )
+  )
+
+# Remove Exonueura and leioproctus
+
+beesNA_filtered <- beesNA %>%
+  filter(!species %in% c("Exoneura", "Leioproctus", "Native (Unknown genus)", "Native"))
+
+# Full model
+beesNA_filtered_fulllm <- lmer(transformed_duration~ urban_gradient*temperature*light + type*temperature + type*light + (1|individual), data = beesNA_filtered)
+AIC(beesNA_filtered_fulllm)
+summary(beesNA_filtered_fulllm)
+
+# Simplified model
+
+beesNA_filtered_lm <- lmer(transformed_duration~ light + urban_gradient*temperature + type*temperature + (1|individual), data = beesNA_filtered)
+summary(beesNA_filtered_lm)
+
+# Remove bees that did not meet the 120 second threshold
+
+beesNA_success <- beesNA %>%
+  filter(!duration_from_start %in% c("120"))
+
+beesNA_success_lmfull <- lmer(transformed_duration~ urban_gradient*temperature*light + type*temperature + type*light + (1|individual), data = beesNA_success)
+summary(beesNA_success_lmfull)
+
+beesNA_success_lmfull <- lmer(transformed_duration~ light + urban_gradient*temperature + type*temperature + (1|individual), data = beesNA_success)
+summary(beesNA_filtered_lm)
+
+# Summary of proportion of bees that succeeded vs failed
+
+success_summary <- beesNA %>%
+  mutate(duration_flag = ifelse(duration_from_start == 120, "120", "Other")) %>%
+  group_by(type, duration_flag) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(type) %>%
+  mutate(prop = count / sum(count))
+```
+
