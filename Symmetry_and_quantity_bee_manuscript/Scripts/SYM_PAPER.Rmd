@@ -1,7 +1,7 @@
 ---
-title: "Working title: Effect of symmetry on quantity discrimination"
+title: "Investigating the influence of symmetrical and asymmetrical patterns on quantity discrimination in honeybees"
 author: "Leslie Ng"
-date: "2024-01-08"
+date: "2026-03-11"
 output:
   html_document:
    toc: yes

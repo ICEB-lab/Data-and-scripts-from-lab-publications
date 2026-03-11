@@ -1,5 +1,5 @@
 # Symmetry_and_quantity_bee_manuscript
- Repository containing data for our manuscript titled 'Working title'
+ Repository containing data for our manuscript titled 'Investigating the influence of symmetrical and asymmetrical patterns on quantity discrimination in honeybees'
 
 Visit here for html page: https://tcleslieng.github.io/Symmetry_and_quantity_bee_manuscript/
 
