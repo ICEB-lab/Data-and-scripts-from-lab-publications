@@ -948,8 +948,8 @@ p_ext <- ggplot(new_data_ext, aes(x = CNUM, y = fit)) +
 
 print(p_ext)
 
-ggsave("p_ext5.png", plot = p_ext, width = 5, height = 5, dpi = 300, path = "../Output")
-ggsave("p_ext5.pdf", plot = p_ext, width = 5, height = 5, dpi = 300, path = "../Output")
+ggsave("p_ext5.png", plot = p_ext, width = 5, height = 5, dpi = 600, path = "../Output")
+ggsave("p_ext5.pdf", plot = p_ext, width = 5, height = 5, dpi = 600, path = "../Output")
 
 
 # Experiment 6
@@ -1002,37 +1002,37 @@ ggsave("p_ext6.pdf", width = 5, height = 5, dpi = 300, path = "../Output")
 
 fig2c <- exp1graph 
 fig2c
-ggsave("fig2c.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig2c.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig2c.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig2c.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 fig2d <- ext1graph
 fig2d
-ggsave("fig2d.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig2d.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig2d.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig2d.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 fig3b <- exp3graph
 fig3b
-ggsave("fig3b.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig3b.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig3b.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig3b.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 fig4b <- congraph
 fig4b
-ggsave("fig4b.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig4b.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig4b.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig4b.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 fig5d <- trngraph
 fig5d
-ggsave("fig5d.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig5d.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig5d.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig5d.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 fig5e <- ext2graph
 fig5e
-ggsave("fig5e.pdf", device = pdf, height= 4, width=5, dpi = 300, path = "../Output")
-ggsave("fig5e.png", device = png, height= 4, width=5, dpi = 300, path = "../Output")
+ggsave("fig5e.pdf", device = pdf, height= 4, width=5, dpi = 600, path = "../Output")
+ggsave("fig5e.png", device = png, height= 4, width=5, dpi = 600, path = "../Output")
 
 trngraph2 
-ggsave("figSuppx.pdf", device = pdf, height= 5, width=5, dpi = 300, path = "../Output")
-ggsave("figSuppx.png", device = png, height= 5, width=5, dpi = 300, path = "../Output")
+ggsave("figSuppx.pdf", device = pdf, height= 5, width=5, dpi = 600, path = "../Output")
+ggsave("figSuppx.png", device = png, height= 5, width=5, dpi = 600, path = "../Output")
 
 ```
 
