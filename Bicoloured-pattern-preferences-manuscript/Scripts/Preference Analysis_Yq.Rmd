@@ -103,33 +103,54 @@ mean(bysvbitest$CHOICE)
 ```{r}
 bvylm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvytest)
 summary(bvylm)
+exp(fixef(bvylm)) #odds ratio
+exp(confint(bvylm, method = "Wald"))
 
 bvybslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvybstest)
 summary(bvybslm)
+exp(fixef(bvybslm))
+exp(confint(bvybslm, method = "Wald"))
 
 bvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvbystest)
 summary(bvbyslm)
+exp(fixef(bvbyslm))
+exp(confint(bvbyslm, method = "Wald"))
 
 bvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bvbitest)
 summary(bvbilm)
+exp(fixef(bvbilm))
+exp(confint(bvbilm, method = "Wald"))
+
 
 yvybslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvybstest)
 summary(yvybslm)
+exp(fixef(yvybslm))
+exp(confint(yvybslm, method = "Wald"))
 
 yvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvbystest)
 summary(yvbyslm)
+exp(fixef(yvbyslm))
+exp(confint(yvbyslm, method = "Wald"))
 
 yvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = yvbitest)
 summary(yvbilm)
+exp(fixef(yvbilm))
+exp(confint(yvbilm, method = "Wald"))
 
 ybsvbyslm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = ybsvbystest)
 summary(ybsvbyslm)
+exp(fixef(ybsvbyslm))
+exp(confint(ybsvbyslm, method = "Wald"))
 
 ybsvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = ybsvbitest)
 summary(ybsvbilm)
+exp(fixef(ybsvbilm))
+exp(confint(ybsvbilm, method = "Wald"))
 
 bysvbilm <- glmer(CHOICE~ 1 + (1|BEEID), family = binomial, data = bysvbitest)
 summary(bysvbilm)
+exp(fixef(bysvbilm))
+exp(confint(bysvbilm, method = "Wald"))
 
 ```
 
